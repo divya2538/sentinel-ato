@@ -1,0 +1,119 @@
+[
+  {
+    "event_id": "evt_n01",
+    "user_id": "usr_normal",
+    "timestamp": "2026-06-18T09:00:00Z",
+    "event_type": "login_success",
+    "ip_address": "192.0.2.10",
+    "device_id": "dev_macbook_normal",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    "details": {
+      "mfa_verified": true,
+      "mfa_method": "totp"
+    }
+  },
+  {
+    "event_id": "evt_n02",
+    "user_id": "usr_normal",
+    "timestamp": "2026-06-18T09:15:00Z",
+    "event_type": "transaction_initiated",
+    "ip_address": "192.0.2.10",
+    "device_id": "dev_macbook_normal",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    "details": {
+      "amount": 45.0,
+      "currency": "USD",
+      "recipient_account": "acc_bob_123"
+    }
+  },
+  {
+    "event_id": "evt_c01",
+    "user_id": "usr_compromised",
+    "timestamp": "2026-06-18T10:00:00Z",
+    "event_type": "login_failed",
+    "ip_address": "203.0.113.50",
+    "device_id": "dev_unrecognized_attacker",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "details": {
+      "failure_reason": "invalid_password"
+    }
+  },
+  {
+    "event_id": "evt_c02",
+    "user_id": "usr_compromised",
+    "timestamp": "2026-06-18T10:01:00Z",
+    "event_type": "login_failed",
+    "ip_address": "203.0.113.50",
+    "device_id": "dev_unrecognized_attacker",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "details": {
+      "failure_reason": "invalid_password"
+    }
+  },
+  {
+    "event_id": "evt_c03",
+    "user_id": "usr_compromised",
+    "timestamp": "2026-06-18T10:02:00Z",
+    "event_type": "login_success",
+    "ip_address": "203.0.113.50",
+    "device_id": "dev_unrecognized_attacker",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "details": {
+      "mfa_verified": false,
+      "mfa_bypass_reason": "remember_device_expired"
+    }
+  },
+  {
+    "event_id": "evt_c04",
+    "user_id": "usr_compromised",
+    "timestamp": "2026-06-18T10:03:00Z",
+    "event_type": "mfa_disabled",
+    "ip_address": "203.0.113.50",
+    "device_id": "dev_unrecognized_attacker",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "details": {
+      "mfa_type_disabled": "sms"
+    }
+  },
+  {
+    "event_id": "evt_c05",
+    "user_id": "usr_compromised",
+    "timestamp": "2026-06-18T10:04:00Z",
+    "event_type": "pii_updated",
+    "ip_address": "203.0.113.50",
+    "device_id": "dev_unrecognized_attacker",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "details": {
+      "field_changed": "email",
+      "old_value": "alice@example.com",
+      "new_value": "attacker_alice@malicious.com"
+    }
+  },
+  {
+    "event_id": "evt_c06",
+    "user_id": "usr_compromised",
+    "timestamp": "2026-06-18T10:06:00Z",
+    "event_type": "transaction_initiated",
+    "ip_address": "203.0.113.50",
+    "device_id": "dev_unrecognized_attacker",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "details": {
+      "amount": 9500.0,
+      "currency": "USD",
+      "recipient_account": "acc_hacker_cashout"
+    }
+  },
+  {
+    "event_id": "evt_s01",
+    "user_id": "usr_sanctioned",
+    "timestamp": "2026-06-18T11:00:00Z",
+    "event_type": "login_success",
+    "ip_address": "185.120.140.1",
+    "device_id": "dev_iran_user",
+    "user_agent": "Mozilla/5.0 (X11; Linux x86_64)",
+    "details": {
+      "mfa_verified": true,
+      "mfa_method": "sms"
+    }
+  }
+]

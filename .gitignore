@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+*$py.class
+backend/test_report_*.json
+.venv/
+venv/
+ENV/
+env/

@@ -1,0 +1,39 @@
+[
+  {
+    "case_id": "case_ato_001",
+    "pattern_name": "credential_stuffing_and_drain",
+    "description": "Attacker conducts a brute force attack (failed logins), logs in successfully from a new device/IP, disables MFA or updates email/phone, and executes a high-value money transfer.",
+    "risk_indicators": [
+      "failed_logins_spike",
+      "new_device",
+      "vpn_or_high_risk_ip",
+      "mfa_disabled",
+      "pii_changed",
+      "large_transaction_deviation"
+    ],
+    "risk_score": 98
+  },
+  {
+    "case_id": "case_ato_002",
+    "pattern_name": "session_hijack_impossible_travel",
+    "description": "Session token stolen or hijacked. User logs in from location A, and within an impossible travel window, accesses account from location B without credential re-entry.",
+    "risk_indicators": [
+      "impossible_travel",
+      "new_device",
+      "vpn_or_high_risk_ip"
+    ],
+    "risk_score": 88
+  },
+  {
+    "case_id": "case_ato_003",
+    "pattern_name": "pii_takeover_mfa_hijack",
+    "description": "Attacker compromises credentials, immediately changes password/email, and registers a new MFA device, locking out the legitimate user.",
+    "risk_indicators": [
+      "new_device",
+      "pii_changed",
+      "mfa_added",
+      "mfa_disabled"
+    ],
+    "risk_score": 92
+  }
+]
