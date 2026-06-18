@@ -1,19 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ShieldAlert, Cpu, Sparkles, UserCheck, Eye, Database } from 'lucide-react';
+import { fetchUsers } from '../api';
+
 const InvestigationInput = ({ onSubmit, isSubmitting }) => {
   const [accountNumber, setAccountNumber] = useState('');
   const [customerId, setCustomerId] = useState('');
   const [alertType, setAlertType] = useState('Account Takeover');
   const [error, setError] = useState('');
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchUsers()
+      .then(users => {
+        if (isMounted) {
+          setAvailableUsers(users);
+          setIsLoadingUsers(false);
+        }
+      })
+      .catch(err => {
+        console.error("Failed to load backend users:", err);
+        if (isMounted) {
+          setIsLoadingUsers(false);
+        }
+      });
+    return () => { isMounted = false; };
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!accountNumber.trim()) {
-      setError('An Account Number must be provided to initiate the query.');
-      return;
-    }
-    // Simple numeric verification for standard banking mock
-    if (!/^\d+$/.test(accountNumber)) {
-      setError('Account Number must contain digits only.');
+      setError('An Account Number or User ID must be provided to initiate the query.');
       return;
     }
     setError('');
@@ -32,11 +50,39 @@ const InvestigationInput = ({ onSubmit, isSubmitting }) => {
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Account Number</label>
+            <label className="form-label">Select Flagged Session (From Database)</label>
+            <select
+              className="form-input"
+              style={{ appearance: 'none', backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat' }}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val) {
+                  setAccountNumber(val);
+                  setCustomerId(val);
+                  // Auto-set the best alertType based on the user
+                  if (val === 'usr_compromised') {
+                    setAlertType('Account Takeover');
+                  } else if (val === 'usr_sanctioned') {
+                    setAlertType('AML Review');
+                  } else if (val === 'usr_normal') {
+                    setAlertType('Unauthorized Access');
+                  }
+                }
+              }}
+              disabled={isSubmitting || isLoadingUsers}
+            >
+              <option value="">-- Choose active session to autofill --</option>
+              {availableUsers.map(u => (
+                <option key={u} value={u}>{u}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Account Number / User ID</label>
             <input
               type="text"
               className="form-input"
-              placeholder="e.g. 9982736451"
+              placeholder="e.g. usr_compromised or 9982736451"
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
               disabled={isSubmitting}
