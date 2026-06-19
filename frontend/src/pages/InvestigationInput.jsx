@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShieldAlert, Cpu, Sparkles, UserCheck, Eye, Database } from 'lucide-react';
+import { Search, ShieldAlert, Cpu, Sparkles, UserCheck, Eye, Database, Info, FileText } from 'lucide-react';
 import { fetchUsers } from '../api';
 
 const InvestigationInput = ({ onSubmit, isSubmitting, isDemoMode, onAutoEnableDemoMode }) => {
@@ -42,38 +42,49 @@ const InvestigationInput = ({ onSubmit, isSubmitting, isDemoMode, onAutoEnableDe
     setError('');
     onSubmit({ accountNumber, customerId, alertType });
   };
+
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>
-      <div className="input-page-container">
-        {isDemoMode && (
-          <div className="compliance-banner" style={{ background: 'var(--color-warning-bg)', borderColor: 'var(--color-warning)', color: 'var(--text-primary)', marginBottom: '1.5rem', marginTop: '-0.5rem' }}>
-            <Sparkles size={16} style={{ color: 'var(--color-warning)' }} />
-            <div style={{ fontSize: '0.8rem' }}>
-              <strong>Demo Sandbox Mode:</strong> Using simulated, offline compliance dossier data.
-            </div>
-          </div>
-        )}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.5rem' }}>
-            Initiate Automated Compilation
-          </h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            Enter a flagged account number to construct an audit-ready dossier.
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+      {/* Header Row */}
+      <div className="new-investigation-header-row">
+        <div>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>New Investigation</h1>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+            Provide the details below to generate an investigation report.
           </p>
         </div>
+        <div className="header-info-badge">
+          <Info size={15} style={{ color: 'var(--color-info)', flexShrink: 0 }} />
+          <span>AI does not make decisions. AI only compiles evidence.</span>
+        </div>
+      </div>
+
+      {isDemoMode && (
+        <div className="compliance-banner" style={{ background: 'var(--color-warning-bg)', borderColor: 'rgba(217, 119, 6, 0.2)', color: 'var(--color-warning)' }}>
+          <Sparkles size={16} />
+          <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>
+            <strong>Demo Sandbox Active:</strong> Using offline simulated dataset.
+          </div>
+        </div>
+      )}
+
+      {/* Main card */}
+      <div className="new-investigation-card">
         <form onSubmit={handleSubmit}>
+          {/* Database Autofill Selection */}
           <div className="form-group">
-            <label className="form-label">Select Flagged Session (From Database)</label>
+            <label className="form-label">Autofill Flagged Session (From Database)</label>
             <select
               className="form-input"
-              style={{ appearance: 'none', backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat' }}
+              style={{ paddingRight: '2rem' }}
               onChange={(e) => {
                 const val = e.target.value;
                 if (val) {
                   const cleanVal = val.split(' ')[0];
                   setAccountNumber(cleanVal);
                   setCustomerId(cleanVal === 'usr_compromised' ? 'CUST-70891' : cleanVal === 'usr_sanctioned' ? 'CUST-99008' : cleanVal === 'usr_normal' ? 'CUST-44109' : cleanVal);
-                  // Auto-set the best alertType based on the user
+                  
+                  // Auto-set the best alertType based on selected account
                   if (val.includes('compromised') || val.includes('Takeover') || val.includes('9982736451')) {
                     setAlertType('Account Takeover');
                   } else if (val.includes('sanctioned') || val.includes('AML') || val.includes('5544332211')) {
@@ -95,28 +106,31 @@ const InvestigationInput = ({ onSubmit, isSubmitting, isDemoMode, onAutoEnableDe
               ))}
             </select>
           </div>
+
           <div className="form-group">
-            <label className="form-label">Account Number / User ID</label>
+            <label className="form-label">Account Number</label>
             <input
               type="text"
               className="form-input"
-              placeholder="e.g. usr_compromised or 9982736451"
+              placeholder="Enter account number"
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
               disabled={isSubmitting}
             />
           </div>
+
           <div className="form-group">
-            <label className="form-label">Customer ID <span style={{ color: 'var(--text-muted)' }}>(Optional)</span></label>
+            <label className="form-label">Customer ID (Optional)</label>
             <input
               type="text"
               className="form-input"
-              placeholder="e.g. CUST-70891"
+              placeholder="Enter customer ID"
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
               disabled={isSubmitting}
             />
           </div>
+
           <div className="form-group" style={{ marginBottom: '2rem' }}>
             <label className="form-label">Alert Type</label>
             <select
@@ -124,7 +138,6 @@ const InvestigationInput = ({ onSubmit, isSubmitting, isDemoMode, onAutoEnableDe
               value={alertType}
               onChange={(e) => setAlertType(e.target.value)}
               disabled={isSubmitting}
-              style={{ appearance: 'none', backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat' }}
             >
               <option value="Account Takeover">Account Takeover</option>
               <option value="Mule Account Activity">Mule Account Activity</option>
@@ -133,11 +146,12 @@ const InvestigationInput = ({ onSubmit, isSubmitting, isDemoMode, onAutoEnableDe
               <option value="Unauthorized Access">Unauthorized Access</option>
             </select>
           </div>
+
           {error && (
-            <div className="gap-item" style={{ backgroundColor: 'var(--color-error-bg)', borderColor: 'rgba(239, 68, 68, 0.2)', marginBottom: '1.5rem', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem' }}>
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <div className="gap-item" style={{ backgroundColor: 'var(--color-error-bg)', borderColor: 'rgba(220, 38, 38, 0.15)', marginBottom: '1.5rem', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                 <ShieldAlert size={16} style={{ color: 'var(--color-error)' }} />
-                <span style={{ fontSize: '0.85rem' }}>{error}</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 500 }}>{error}</span>
               </div>
               {!isDemoMode && (
                 <button
@@ -145,11 +159,11 @@ const InvestigationInput = ({ onSubmit, isSubmitting, isDemoMode, onAutoEnableDe
                   onClick={onAutoEnableDemoMode}
                   className="btn-secondary"
                   style={{
-                    padding: '0.3rem 0.6rem',
+                    padding: '0.25rem 0.5rem',
                     fontSize: '0.75rem',
                     color: 'var(--color-warning)',
-                    borderColor: 'rgba(245, 158, 11, 0.3)',
-                    backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                    borderColor: 'rgba(217, 119, 6, 0.3)',
+                    backgroundColor: 'var(--color-warning-bg)',
                     marginTop: '0.25rem',
                     cursor: 'pointer'
                   }}
@@ -159,44 +173,42 @@ const InvestigationInput = ({ onSubmit, isSubmitting, isDemoMode, onAutoEnableDe
               )}
             </div>
           )}
-          <button type="submit" className="btn-primary" disabled={isSubmitting}>
-            <Search size={18} />
+
+          <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={isSubmitting}>
+            <FileText size={18} />
             {isSubmitting ? 'Querying Systems...' : 'Generate Investigation Report'}
           </button>
         </form>
       </div>
+
       {/* Compliance Guidelines Banner (Core Principles) */}
-      <div className="container" style={{ maxWidth: '800px', marginTop: '3rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
-            System Operating Scope & Principles
-          </h3>
+      <div className="compliance-grid">
+        <div className="compliance-card">
+          <Cpu size={18} className="compliance-card-icon" style={{ color: 'var(--color-accent)' }} />
+          <div>
+            <h4 className="compliance-card-title">Passive Synthesis</h4>
+            <p className="compliance-card-desc">AIS compiles logs and evidence. It does not classify risk or assign threat probabilities.</p>
+          </div>
         </div>
-        <div className="compliance-grid">
-          <div className="compliance-card">
-            <Cpu size={18} className="compliance-card-icon" style={{ color: 'var(--color-accent)' }} />
-            <div>
-              <h4 className="compliance-card-title">Passive Synthesis</h4>
-              <p className="compliance-card-desc">AIS compiles logs and evidence. It does not classify risk or assign threat probabilities.</p>
-            </div>
+
+        <div className="compliance-card">
+          <UserCheck size={18} className="compliance-card-icon" style={{ color: 'var(--color-success)' }} />
+          <div>
+            <h4 className="compliance-card-title">Analyst Sovereignty</h4>
+            <p className="compliance-card-desc">System actions are passive. Accounts are not locked and assets are not frozen by this AI.</p>
           </div>
-          <div className="compliance-card">
-            <UserCheck size={18} className="compliance-card-icon" />
-            <div>
-              <h4 className="compliance-card-title">Analyst Sovereignty</h4>
-              <p className="compliance-card-desc">System actions are passive. Accounts are not locked and assets are not frozen by this AI.</p>
-            </div>
-          </div>
-          <div className="compliance-card">
-            <Eye size={18} className="compliance-card-icon" style={{ color: 'var(--color-info)' }} />
-            <div>
-              <h4 className="compliance-card-title">Full Traceability</h4>
-              <p className="compliance-card-desc">Every statement matches database records. Analysts can audit the retrieval process in real-time.</p>
-            </div>
+        </div>
+
+        <div className="compliance-card">
+          <Eye size={18} className="compliance-card-icon" style={{ color: 'var(--color-info)' }} />
+          <div>
+            <h4 className="compliance-card-title">Full Traceability</h4>
+            <p className="compliance-card-desc">Every statement matches database records. Analysts can audit the retrieval process in real-time.</p>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
 export default InvestigationInput;
