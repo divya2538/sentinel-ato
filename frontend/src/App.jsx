@@ -6,11 +6,20 @@ import TransparencyView from './pages/TransparencyView';
 import { generateReport } from './api';
 import { ShieldAlert, Info, ShieldCheck } from 'lucide-react';
 const App = () => {
+  const [isDemoMode, setIsDemoMode] = useState(() => {
+    return localStorage.getItem('ais_demo_mode') === 'true';
+  });
   const [currentView, setCurrentView] = useState('input'); // 'input', 'loading', 'report'
   const [report, setReport] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transparencyOpen, setTransparencyOpen] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
+
+  const handleToggleDemoMode = (value) => {
+    const newValue = typeof value === 'boolean' ? value : !isDemoMode;
+    setIsDemoMode(newValue);
+    localStorage.setItem('ais_demo_mode', String(newValue));
+  };
   // Loading animation sequence messages
   const loadingSteps = [
     "Establishing secure gateway connection...",
@@ -56,12 +65,14 @@ const App = () => {
   };
   return (
     <div className="app-container">
-      <Navbar onBackHome={handleBackToHome} />
+      <Navbar onBackHome={handleBackToHome} isDemoMode={isDemoMode} onToggleDemoMode={handleToggleDemoMode} />
       <main>
         {currentView === 'input' && (
           <InvestigationInput 
             onSubmit={handleStartInvestigation} 
             isSubmitting={isSubmitting} 
+            isDemoMode={isDemoMode}
+            onAutoEnableDemoMode={() => handleToggleDemoMode(true)}
           />
         )}
         {currentView === 'loading' && (

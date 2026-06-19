@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShieldAlert, Cpu, Sparkles, UserCheck, Eye, Database } from 'lucide-react';
 import { fetchUsers } from '../api';
 
-const InvestigationInput = ({ onSubmit, isSubmitting }) => {
+const InvestigationInput = ({ onSubmit, isSubmitting, isDemoMode, onAutoEnableDemoMode }) => {
   const [accountNumber, setAccountNumber] = useState('');
   const [customerId, setCustomerId] = useState('');
   const [alertType, setAlertType] = useState('Account Takeover');
@@ -12,21 +12,26 @@ const InvestigationInput = ({ onSubmit, isSubmitting }) => {
 
   useEffect(() => {
     let isMounted = true;
+    setIsLoadingUsers(true);
     fetchUsers()
       .then(users => {
         if (isMounted) {
           setAvailableUsers(users);
           setIsLoadingUsers(false);
+          setError('');
         }
       })
       .catch(err => {
         console.error("Failed to load backend users:", err);
         if (isMounted) {
           setIsLoadingUsers(false);
+          if (!isDemoMode) {
+            setError('Backend server offline. Please start Flask or enable Demo Mode to proceed.');
+          }
         }
       });
     return () => { isMounted = false; };
-  }, []);
+  }, [isDemoMode]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,6 +45,14 @@ const InvestigationInput = ({ onSubmit, isSubmitting }) => {
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>
       <div className="input-page-container">
+        {isDemoMode && (
+          <div className="compliance-banner" style={{ background: 'var(--color-warning-bg)', borderColor: 'var(--color-warning)', color: 'var(--text-primary)', marginBottom: '1.5rem', marginTop: '-0.5rem' }}>
+            <Sparkles size={16} style={{ color: 'var(--color-warning)' }} />
+            <div style={{ fontSize: '0.8rem' }}>
+              <strong>Demo Sandbox Mode:</strong> Using simulated, offline compliance dossier data.
+            </div>
+          </div>
+        )}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.5rem' }}>
             Initiate Automated Compilation
@@ -57,15 +70,20 @@ const InvestigationInput = ({ onSubmit, isSubmitting }) => {
               onChange={(e) => {
                 const val = e.target.value;
                 if (val) {
-                  setAccountNumber(val);
-                  setCustomerId(val);
+                  const cleanVal = val.split(' ')[0];
+                  setAccountNumber(cleanVal);
+                  setCustomerId(cleanVal === 'usr_compromised' ? 'CUST-70891' : cleanVal === 'usr_sanctioned' ? 'CUST-99008' : cleanVal === 'usr_normal' ? 'CUST-44109' : cleanVal);
                   // Auto-set the best alertType based on the user
-                  if (val === 'usr_compromised') {
+                  if (val.includes('compromised') || val.includes('Takeover') || val.includes('9982736451')) {
                     setAlertType('Account Takeover');
-                  } else if (val === 'usr_sanctioned') {
+                  } else if (val.includes('sanctioned') || val.includes('AML') || val.includes('5544332211')) {
                     setAlertType('AML Review');
-                  } else if (val === 'usr_normal') {
+                  } else if (val.includes('normal') || val.includes('Unauthorized') || val.includes('3322119988')) {
                     setAlertType('Unauthorized Access');
+                  } else if (val.includes('Mule') || val.includes('8827310029')) {
+                    setAlertType('Mule Account Activity');
+                  } else if (val.includes('Transfer') || val.includes('7766554433')) {
+                    setAlertType('Suspicious Transfer');
                   }
                 }
               }}
@@ -116,9 +134,29 @@ const InvestigationInput = ({ onSubmit, isSubmitting }) => {
             </select>
           </div>
           {error && (
-            <div className="gap-item" style={{ backgroundColor: 'var(--color-error-bg)', borderColor: 'rgba(239, 68, 68, 0.2)', marginBottom: '1.5rem' }}>
-              <ShieldAlert size={16} style={{ color: 'var(--color-error)' }} />
-              <span style={{ fontSize: '0.85rem' }}>{error}</span>
+            <div className="gap-item" style={{ backgroundColor: 'var(--color-error-bg)', borderColor: 'rgba(239, 68, 68, 0.2)', marginBottom: '1.5rem', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <ShieldAlert size={16} style={{ color: 'var(--color-error)' }} />
+                <span style={{ fontSize: '0.85rem' }}>{error}</span>
+              </div>
+              {!isDemoMode && (
+                <button
+                  type="button"
+                  onClick={onAutoEnableDemoMode}
+                  className="btn-secondary"
+                  style={{
+                    padding: '0.3rem 0.6rem',
+                    fontSize: '0.75rem',
+                    color: 'var(--color-warning)',
+                    borderColor: 'rgba(245, 158, 11, 0.3)',
+                    backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                    marginTop: '0.25rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Enable Demo Mode (Offline Sandbox)
+                </button>
+              )}
             </div>
           )}
           <button type="submit" className="btn-primary" disabled={isSubmitting}>

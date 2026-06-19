@@ -190,11 +190,29 @@ const MOCK_REPORTS = {
     ]
   }
 };
+export const isDemoModeActive = () => {
+  return localStorage.getItem('ais_demo_mode') === 'true';
+};
+
 /**
  * Fetches all available user IDs from the backend.
  * @returns {Promise<string[]>}
  */
 export const fetchUsers = async () => {
+  if (isDemoModeActive()) {
+    // Return sample users including specific demo tags
+    return [
+      "usr_compromised",
+      "usr_sanctioned",
+      "usr_normal",
+      "9982736451 (Demo)",
+      "8827310029 (Demo)",
+      "7766554433 (Demo)",
+      "5544332211 (Demo)",
+      "3322119988 (Demo)"
+    ];
+  }
+
   const response = await fetch('/api/users');
   if (!response.ok) {
     throw new Error("Failed to retrieve user list from backend.");
@@ -203,7 +221,7 @@ export const fetchUsers = async () => {
 };
 
 /**
- * Compiles an investigation report from the backend ATO engine.
+ * Compiles an investigation report from the backend ATO engine or local mock datasets.
  * @param {string} accountNumber - The user ID to investigate.
  * @param {string} customerId - Optional customer ID.
  * @param {string} alertType - The alert type selected by the analyst.
@@ -215,6 +233,38 @@ export const generateReport = async (accountNumber, customerId, alertType) => {
   }
 
   const userId = accountNumber.trim();
+
+  if (isDemoModeActive()) {
+    // Simulate network delay for realistic feel
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // Try to match the mock data by alert type first, then check account numbers
+    let matchedReport = null;
+    if (MOCK_REPORTS[alertType]) {
+      matchedReport = MOCK_REPORTS[alertType];
+    } else {
+      const cleanId = userId.split(' ')[0]; // Handle '(Demo)' suffix
+      matchedReport = Object.values(MOCK_REPORTS).find(r => r.accountNumber === cleanId || r.accountNumber === userId);
+    }
+
+    if (!matchedReport) {
+      matchedReport = MOCK_REPORTS["Account Takeover"];
+    }
+
+    const mockRiskScore = alertType === 'Account Takeover' ? 94 : alertType === 'Mule Account Activity' ? 95 : alertType === 'Suspicious Transfer' ? 76 : alertType === 'AML Review' ? 96 : 97;
+
+    return {
+      ...matchedReport,
+      accountNumber: userId,
+      customerId: customerId || matchedReport.customerId,
+      alertType: alertType || matchedReport.alertType,
+      generatedAt: new Date().toISOString(),
+      narrative: `### 📋 Executive Summary\n${matchedReport.executiveSummary}\n\n### 🔍 Detailed Analysis\nThis report has been reconstructed under Demo Sandbox constraints.`,
+      riskScore: mockRiskScore,
+      riskLevel: mockRiskScore >= 90 ? "CRITICAL" : "HIGH",
+      verdict: mockRiskScore >= 70 ? "FRAUD" : "SUSPICIOUS"
+    };
+  }
 
   // Fetch analysis report from /api/analyze/<userId>
   const reportResponse = await fetch(`/api/analyze/${userId}`);
@@ -396,13 +446,24 @@ export const generateReport = async (accountNumber, customerId, alertType) => {
 };
 
 /**
- * Saves analyst notes to the backend audit database.
+ * Saves analyst notes to the backend audit database or local simulation logs.
  * @param {string} accountNumber - The user ID/account number.
  * @param {string} notes - The analyst notes content.
  * @param {string} analystName - Name or ID of the signing analyst.
  * @returns {Promise<object>} The confirmation payload.
  */
 export const saveAnalystNotes = async (accountNumber, notes, analystName) => {
+  if (isDemoModeActive()) {
+    await new Promise(resolve => setTimeout(resolve, 400));
+    const receiptId = `SIG-${Math.floor(Math.random() * 900000) + 100000}`;
+    return {
+      status: "success",
+      user_id: accountNumber,
+      timestamp: new Date().toISOString(),
+      receipt: receiptId
+    };
+  }
+
   const response = await fetch(`/api/notes/${accountNumber}`, {
     method: 'POST',
     headers: {
