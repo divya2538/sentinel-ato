@@ -1,20 +1,29 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 
+# Test files
 backend/test_report_*.json
 
+# Virtual environments
 .venv/
 venv/
 ENV/
 env/
 
-# Frontend
+# Frontend dependencies
 node_modules/
 frontend/node_modules/
 
+# Build output
 dist/
 frontend/dist/
 
+# Editor files
 .vscode/
+.idea/
+
+# OS files
 .DS_Store
+Thumbs.db
