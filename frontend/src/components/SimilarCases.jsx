@@ -18,19 +18,29 @@ const SimilarCases = ({ cases, alertType }) => {
       
       <div className="similarity-list">
         {cases.map((item, index) => (
-          <div key={index} className="similarity-item">
-            <div className="similarity-item-left">
-              <span className="similarity-id">{item.caseId}</span>
-              <span className="similarity-notes">{item.notes}</span>
+          <div key={index} className="similarity-item" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', alignItems: 'stretch', padding: '0.85rem 1rem' }}>
+            {/* Row 1: Case ID/Acc No -------- Similarity */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="similarity-id" style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.875rem', color: 'var(--text-primary)' }}>{item.caseId}</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--color-accent)', fontSize: '0.85rem' }}>{item.similarity} Match</span>
             </div>
             
-            <div className="similarity-badge">
-              <span className="similarity-metric">{item.similarity}</span>
-              <span className="similarity-outcome" style={{
-                color: item.outcome.includes("Fraud") ? 'var(--color-error)' : 'var(--color-success)'
+            {/* Row 2: Past Outcome */}
+            <div style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Past Outcome:</span>
+              <strong style={{ 
+                color: item.outcome.includes("Fraud") ? 'var(--color-error)' : 'var(--color-success)',
+                textTransform: 'uppercase',
+                fontSize: '0.75rem',
+                fontWeight: 700
               }}>
                 {item.outcome}
-              </span>
+              </strong>
+            </div>
+
+            {/* Row 3: Notes / Description */}
+            <div className="similarity-notes" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.4rem', marginTop: '0.2rem' }}>
+              {item.notes}
             </div>
           </div>
         ))}
