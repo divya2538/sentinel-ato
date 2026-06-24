@@ -198,6 +198,7 @@ export const isDemoModeActive = () => {
  * Fetches all available user IDs from the backend.
  * @returns {Promise<string[]>}
  */
+const API_BASE_URL = "https://sentinel-ato.onrender.com";
 export const fetchUsers = async () => {
   if (isDemoModeActive()) {
     // Return sample users including specific demo tags
@@ -213,7 +214,7 @@ export const fetchUsers = async () => {
     ];
   }
 
-  const response = await fetch('/api/users');
+  const response = await fetch(`${API_BASE_URL}/api/users`);
   if (!response.ok) {
     throw new Error("Failed to retrieve user list from backend.");
   }
@@ -267,7 +268,7 @@ export const generateReport = async (accountNumber, customerId, alertType) => {
   }
 
   // Fetch analysis report from /api/analyze/<userId>
-  const reportResponse = await fetch(`/api/analyze/${userId}`);
+  const reportResponse = await fetch(`${API_BASE_URL}/api/analyze/${userId}`);
   if (!reportResponse.ok) {
     const errData = await reportResponse.json().catch(() => ({}));
     throw new Error(errData.error || `Failed to analyze session for ${userId}`);
@@ -275,7 +276,7 @@ export const generateReport = async (accountNumber, customerId, alertType) => {
   const backendReport = await reportResponse.json();
 
   // Fetch raw logs from /api/logs/<userId>
-  const logsResponse = await fetch(`/api/logs/${userId}`);
+  const logsResponse = await fetch(`${API_BASE_URL}/api/logs/${userId}`);
   let rawLogs = [];
   if (logsResponse.ok) {
     rawLogs = await logsResponse.json();
