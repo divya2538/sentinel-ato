@@ -1,8 +1,20 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
 backend/test_report_*.json
+
 .venv/
 venv/
 ENV/
 env/
+
+# Frontend
+node_modules/
+frontend/node_modules/
+
+dist/
+frontend/dist/
+
+.vscode/
+.DS_Store
